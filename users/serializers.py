@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, College
+from .models import User, College, Shops, Menu
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
@@ -102,4 +102,16 @@ class LoginSerializer(serializers.ModelSerializer):
 class CollegeSerializer(serializers.ModelSerializer):
     class Meta:
         model = College
+
         fields = ['id','name']    
+class ShopSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Shops
+        fields = ['id','name','image']    
+
+class MenuSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Menu
+        fields = ['id','shop','name','image','availability', 'price']                    
+
+        
