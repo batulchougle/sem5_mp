@@ -98,6 +98,24 @@ class LoginSerializer(serializers.ModelSerializer):
               'role': user.get_role
             
          }
+class LogoutUserSerializer(serializers.Serializer):
+    refresh_token=serializers.CharField()
+
+    default_error_messages={
+        'bad_token':('token is invalid or has expired')
+    }
+
+    def validate(self,attrs):
+        self.token=attrs.get('refresh_token')
+        return attrs
+    
+    def save(self,**kwargs):
+        try:
+          token=RefreshToken(self.token)
+          token.blacklist()
+          
+        except TokenError:
+            return self.fail('bad_token')             
     
 class CollegeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -115,3 +133,4 @@ class MenuSerializer(serializers.ModelSerializer):
         fields = ['id','shop','name','image','availability', 'price']                    
 
         
+
