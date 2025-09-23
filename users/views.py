@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.generics import GenericAPIView
 from .models import College, Shops, Menu
-from .serializers import UserRegisterSerializer, LoginSerializer,CollegeSerializer, ShopSerializer, MenuSerializer
+from .serializers import UserRegisterSerializer, LoginSerializer,CollegeSerializer, ShopSerializer, MenuSerializer,LogoutUserSerializer
 from rest_framework.response import Response
 from rest_framework import status,  generics, permissions
 from rest_framework import serializers
@@ -48,6 +48,15 @@ class LoginUserView(GenericAPIView):
                 {"error": f"Something went wrong: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+            
+class LogoutUserView(GenericAPIView):
+        serializer_class=LogoutUserSerializer    
+        permission_classes=[permissions.IsAuthenticated]
+        def post(self,request) :
+            serializer=self.serializer_class(data=request.data)  
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(status=status.HTTP_200_OK)               
 
 class CollegeListView (generics.ListCreateAPIView):
         queryset = College.objects.all()
@@ -121,3 +130,4 @@ class MenuListView(generics.ListAPIView):
 
         
         return Menu.objects.filter(shop=shop)
+
