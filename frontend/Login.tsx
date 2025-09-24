@@ -1,18 +1,25 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Platform } from 'react-native';
+import Background from './Background';
+import CanteenAdminHP from './canteen_admin_hp';
 import Signup from './Signup';
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showSignup, setShowSignup] = useState(false); // toggle to signup
+  const [showAdminHome, setShowAdminHome] = useState(false);
 
   if (showSignup) return <Signup />; // show signup page if toggled
+  if (showAdminHome) return <CanteenAdminHP userName={username || 'User'} />;
 
   const handleLogin = () => {
+    // Temporary routing: assume canteen admin login goes to admin homepage
+    setShowAdminHome(true);
   };
 
   return (
+    <Background>
     <View style={styles.container}>
       {/* App Logo and Name */}
       <View style={styles.logoContainer}>
@@ -48,6 +55,7 @@ export default function Login() {
         <Text style={styles.linkText}>Don't have an account? Signup</Text>
       </TouchableOpacity>
     </View>
+    </Background>
   );
 }
 

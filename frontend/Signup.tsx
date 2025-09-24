@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Platform } from 'react-native';
+import Background from './Background';
+import CanteenAdminHP from './canteen_admin_hp';
 import Login from './Login';
+import { isUsernameTaken, addUsername } from './userStore';
 
 export default function Signup() {
   const [name, setName] = useState('');
@@ -10,11 +13,14 @@ export default function Signup() {
   const [userType, setUserType] = useState('Select usertype'); //dropdown
   const [showDropdown, setShowDropdown] = useState(false); //dropdown visibility
   const [showLogin, setShowLogin] = useState(false); //connect between signup/login
+  const [showAdminHome, setShowAdminHome] = useState(false);
   const [collegeName, setCollegeName] = useState('Select college');
   const [showCollegeDropdown, setShowCollegeDropdown] = useState(false);
+  const [usernameError, setUsernameError] = useState('');
 
 
   if (showLogin) return <Login />; // show login page if toggled
+  if (showAdminHome) return <CanteenAdminHP userName={name || username || 'User'} />;
 
   const handleDropdownSelect = (value: string, label: string) => {
     // Close any open dropdowns first to avoid visual clashes
@@ -35,13 +41,29 @@ export default function Signup() {
   };
 
   const handleSignup = () => {
+    const trimmed = (username || '').trim();
+    if (!trimmed) {
+      setUsernameError('Username is required');
+      return;
+    }
+    if (isUsernameTaken(trimmed)) {
+      setUsernameError('Username already taken');
+      return;
+    }
     if (password !== confirm_password) {
+      return;
+    }
+    // Temporary routing: if canteen admin selected, go to admin home
+    addUsername(trimmed);
+    if (userType === 'Canteen Admin') {
+      setShowAdminHome(true);
       return;
     }
   };
   
 
   return (
+    <Background>
     <View style={styles.container}>
       {/* App Logo and Name */}
       <View style={styles.logoContainer}>
@@ -75,8 +97,12 @@ export default function Signup() {
         style={styles.input}
         placeholder="Username"
         value={username}
-        onChangeText={setUsername}
+        onChangeText={(t) => {
+          setUsername(t);
+          if (usernameError) setUsernameError('');
+        }}
       />
+      {!!usernameError && <Text style={styles.errorText}>{usernameError}</Text>}
 
       {/* Custom Dropdown */}
       <View style={[styles.dropdownContainer, showDropdown && styles.dropdownContainerActive]}>
@@ -202,6 +228,7 @@ export default function Signup() {
         <Text style={styles.linkText}>Already have an account? Login</Text>
       </TouchableOpacity>
     </View>
+    </Background>
   );
 }
 
@@ -212,6 +239,13 @@ const styles = StyleSheet.create({
   button: { width: '100%', height: 50, backgroundColor: '#4CAF50', borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
   buttonText: { color: 'white', fontSize: 18, fontWeight: 'bold' },
   linkText: { color: '#007BFF', marginTop: 10 },
+  errorText: {
+    width: '100%',
+    color: '#d32f2f',
+    marginTop: -8,
+    marginBottom: 10,
+    fontSize: 13,
+  },
   // Logo and App name
   logoContainer: {
     alignItems: 'center',
